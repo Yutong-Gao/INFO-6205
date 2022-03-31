@@ -2,6 +2,7 @@ package edu.neu.coe.info6205.sort.par;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 
 /**
  * This code has been fleshed out by Ziyao Qiao. Thanks very much.
@@ -37,12 +38,15 @@ class ParSort {
             });
 
             parsort.whenComplete((result, throwable) -> System.arraycopy(result, 0, array, from, result.length));
-//            System.out.println("# threads: "+ ForkJoinPool.commonPool().getRunningThreadCount());
+ //           System.out.println("# threads: "+ ForkJoinPool.commonPool().getRunningThreadCount());
             parsort.join();
         }
     }
-
+    public static int threadCount = 32;
+    public static ForkJoinPool mypool = new ForkJoinPool(threadCount);
     private static CompletableFuture<int[]> parsort(int[] array, int from, int to) {
+    	
+    	
         return CompletableFuture.supplyAsync(
                 () -> {
                     int[] result = new int[to - from];
@@ -50,7 +54,7 @@ class ParSort {
                     System.arraycopy(array, from, result, 0, result.length);
                     sort(result, 0, to - from);
                     return result;
-                }
+                },mypool
         );
     }
 }
